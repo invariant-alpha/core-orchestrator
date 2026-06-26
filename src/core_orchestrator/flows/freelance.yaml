@@ -1,0 +1,13 @@
+name: freelance
+version: "1.0"
+description: "Flusso automazione progetti freelance"
+steps:
+  - name: find_projects
+    action: search
+    target_topic: platform.extract.requested
+  - name: generate_proposal
+    action: generate_text
+    target_topic: ai.request.created
+  - name: submit_proposal
+    action: submit
+    target_topic: platform.publish.requested
