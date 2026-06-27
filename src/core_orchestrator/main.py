@@ -96,7 +96,21 @@ async def main():
         
         await emit_event("orchestrator.task.completed", completed.model_dump(), req.correlation_id)
 
+    async def on_flow_deployed(envelope: EventEnvelope):
+        logger.info(f"Received new flow deployment: {envelope.correlation_id}")
+        flow_data = envelope.payload
+        # For this prototype we save the UI-generated DAG as deployed_flow.json
+        import json
+        deploy_path = os.path.join(flows_dir, "deployed_flow.json")
+        try:
+            with open(deploy_path, 'w') as f:
+                json.dump(flow_data, f, indent=2)
+            logger.info(f"Flow successfully saved to {deploy_path}")
+        except Exception as e:
+            logger.error(f"Failed to save deployed flow: {e}")
+
     await bus_client.subscribe("orchestrator.task.requested", "orchestrator_group", on_task_requested)
+    await bus_client.subscribe("orchestrator.flow.deployed", "orchestrator_group", on_flow_deployed)
 
     logger.info("core-orchestrator is listening for events...")
     try:
